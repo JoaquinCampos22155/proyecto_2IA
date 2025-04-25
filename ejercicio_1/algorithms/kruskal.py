@@ -4,6 +4,8 @@ from utils import remover_pared
 def generar_kruskal(grid):
     m, n, _ = grid.shape
     aristas = []
+    conexiones_arbol = []
+
     for i in range(m):
         for j in range(n):
             if i < m - 1:
@@ -26,3 +28,6 @@ def generar_kruskal(grid):
         if find(c1) != find(c2):
             remover_pared(grid, c1, c2)
             union(c1, c2)
+            conexiones_arbol.append((c1, c2))   # Guardamos la arista
+
+    return conexiones_arbol

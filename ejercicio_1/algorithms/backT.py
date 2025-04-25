@@ -10,8 +10,10 @@ def generar_backtracking(grid):
     inicio = (random.randint(0, m - 1), random.randint(0, n - 1))
     stack.append(inicio)
 
+    conexiones_arbol = []
+
     while stack:
-        i, j = stack[-1]   # Vemos la celda actual sin sacar del stack
+        i, j = stack[-1]
         visitado[i, j] = True
 
         vecinos = []
@@ -24,5 +26,8 @@ def generar_backtracking(grid):
             siguiente = random.choice(vecinos)
             remover_pared(grid, (i, j), siguiente)
             stack.append(siguiente)
+            conexiones_arbol.append(((i, j), siguiente))  # Guardamos la arista
         else:
-            stack.pop()  # Retrocedemos solo si no hay vecinos disponibles
+            stack.pop()
+
+    return conexiones_arbol
