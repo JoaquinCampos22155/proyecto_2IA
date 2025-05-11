@@ -8,7 +8,7 @@ def analyze_results(df: pd.DataFrame) -> pd.DataFrame:
     y devuelve el resumen promedio ordenado por 'Place'.
     """
     df['Place'] = df.groupby('Maze')['Expanded'] \
-                   .rank(method='dense', ascending=True).astype(int)
+                   .rank(method='first', ascending=True).astype(int)
     summary = df.groupby('Algorithm')[['Distance','Expanded','Time_s','Place']] \
                 .mean().sort_values('Place')
     return summary
