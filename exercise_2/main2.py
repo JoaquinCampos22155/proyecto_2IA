@@ -4,11 +4,12 @@ from pathlib import Path
 import pandas as pd
 
 from maze import Maze
+from pathlib import Path
 from solver import bfs, dfs, ucs, astar
 from heuristics import heuristic
 from renderer import plot_explored, plot_path
 from stats import collect_stats, time_execution
-
+from generacion import generate_maze
 
 def sanitize(name: str) -> str:
     """
@@ -25,10 +26,19 @@ def main():
     out_dir = base / 'output'
     out_dir.mkdir(exist_ok=True)
 
-    # Cargar laberinto generado por Kruskal o Backtracking
-    maze_file = base / 'maze_kruskal_60x80.txt'
-    #maze_file = base / 'maze_backtracking_60x80.txt'
-    maze = Maze(str(maze_file))
+    # Genera laberinto dinamico
+    M, N = 60, 80
+    inner_rows, inner_cols = 2*M-1, 2*N-1
+    interior = generate_maze(inner_rows, inner_cols)
+
+    rows, cols = inner_rows+2, inner_cols+2
+    framed = [[0]*cols]
+    for row in interior:
+        framed.append([0] + row + [0])
+    framed.append([0]*cols)
+
+    # Convertir a nuestra estructura Maze
+    maze = Maze.from_binary(framed)
 
     # Definir diccionario de algoritmos a probar
     solvers = {
