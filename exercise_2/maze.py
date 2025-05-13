@@ -1,45 +1,32 @@
-from pathlib import Path
+from typing import List, Tuple
 
 class Maze:
-    """
-    Representa un laberinto leído desde un archivo ASCII de muros y pasillos.
-    El archivo debe tener '1' para muro y '0' para pasillo, 
-    tamaño (2*M+1)x(2*N+1).
-    """
-    def __init__(self, filepath: str):
-        # Carga la matriz de caracteres
-        data = Path(filepath).read_text().splitlines()
-        # Convierte a lista de listas de enteros
-        self.grid = [list(map(int, list(line.strip()))) for line in data]
-        self.H = len(self.grid)
-        self.W = len(self.grid[0])
-        
-        # Define start y goal
-        # Por convención, celda (1,1) y (H-2,W-2) si no están bloqueadas
-        if self.grid[1][1] == 0:
-            self.start = (1, 1)
-        else:
-            raise ValueError("La entrada (1,1) está bloqueada en el laberinto.")
-        if self.grid[self.H-2][self.W-2] == 0:
-            self.goal = (self.H-2, self.W-2)
-        else:
-            raise ValueError(f"La salida ({self.H-2},{self.W-2}) está bloqueada.")
-
-    def in_bounds(self, node):
-        i, j = node
-        return 0 <= i < self.H and 0 <= j < self.W
-
-    def passable(self, node):
-        i, j = node
-        return self.grid[i][j] == 0
-
-    def neighbors(self, node):
+    def __init__(self, grid_bool: List[List[bool]]):
         """
-        Vecinos ortogonales (arriba, derecha, abajo, izquierda),
-        filtrando fuera de rango o muros.
+        grid_bool: matriz [H][W] de booleans:
+           True = muro, False = pasillo
         """
-        i, j = node
-        for di, dj in [(-1,0),(0,1),(1,0),(0,-1)]:
-            ni, nj = i + di, j + dj
-            if self.in_bounds((ni,nj)) and self.passable((ni,nj)):
-                yield (ni, nj)
+        self.grid   = grid_bool
+        self.height = len(grid_bool)
+        self.width  = len(grid_bool[0])
+        self.start  = (1, 1)
+        self.goal   = (self.height - 2, self.width - 2)
+
+    @classmethod
+    def from_binary(cls, grid01: List[List[int]]):
+        """
+        grid01: matriz [H][W] de 0/1:
+          1 -> pasillo, 0 -> muro
+        Convierte a True/False e instancia Maze.
+        """
+        # invertimos: 0 (muro) -> True; 1 (pasillo) -> False
+        grid_bool = [[cell == 0 for cell in row] for row in grid01]
+        return cls(grid_bool)
+
+    def neighbors(self, cell: Tuple[int,int]):
+        y, x = cell
+        for dy, dx in [(1,0),(-1,0),(0,1),(0,-1)]:
+            ny, nx = y + dy, x + dx
+            if 0 <= ny < self.height and 0 <= nx < self.width:
+                if not self.grid[ny][nx]:
+                    yield (ny, nx)
